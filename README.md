@@ -1,11 +1,10 @@
-# One Statement, Two Semicolons (Java and Kotlin + Spring)
+# One Statement, Two Semicolons
 
-A Spring Boot port of Jim Lehmer's code challenge at
-[dullroar/code-challenge](https://github.com/dullroar/code-challenge), written twice: once in Java and once in
-Kotlin, so the two languages can be compared. The original was a 2008 C# 3.0 class exercise, modernized to .NET 10
-in 2026.
+A port of Jim Lehmer's code challenge at [dullroar/code-challenge](https://github.com/dullroar/code-challenge),
+written in Java and Kotlin (with Spring Boot), Python and Go, so the languages can be compared. The original was a
+2008 C# 3.0 class exercise, modernized to .NET 10 in 2026.
 
-The constraint is the same: `main` contains exactly one statement, a `for` loop with an empty body. The
+The constraint is the same: `main` contains exactly one statement, usually a `for` loop with an empty body. The
 initializer, condition and update expressions do all the work. This is a stunt in expression mechanics. It is not
 an architectural pattern and it is not good production code.
 
