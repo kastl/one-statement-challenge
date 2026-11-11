@@ -171,6 +171,39 @@ statements inside expressions. The loop is still a real three-part
 | `ISOWeek.GetWeekOfYear` | `IsoFields.WEEK_OF_WEEK_BASED_YEAR` | `date.isocalendar().week` | `time.ISOWeek()` |
 | `Environment.UserName` | `System.getProperty("user.name")` | `getpass.getuser()` | `USERNAME` or `USER` environment variable |
 
+## From the original XAML to each port's markup
+
+The .NET version builds its window from a XAML string at runtime with `XamlReader.Load`. XAML only runs on .NET, so
+each port builds its UI from a different markup string at runtime instead:
+
+- **Java and Kotlin** use standard Spring bean XML. Spring usually uses it to wire up services, and here it creates
+  Swing widgets.
+- **Python** uses a made-up XML format. Each tag is named after a tkinter class (`<Tk>`, `<Label>`), and
+  `getattr(tkinter, tag)` creates the widget.
+- **Go** uses plain HTML and CSS, rendered by the browser.
+
+| UI piece | Original XAML (C#) | Java / Kotlin (Spring XML) | Python (custom XML) | Go (HTML/CSS) |
+| --- | --- | --- | --- | --- |
+| Root of the markup | `<Viewbox>` with WPF namespaces | `<beans>` with Spring namespaces | `<ui>` (any name works) | `<!doctype html>` page |
+| The window | Created in C#; the XAML becomes its `Content` | `<bean id="window" class="javax.swing.JDialog">` | `<Tk id="window" .../>` | The browser window |
+| Window title | Set in C# code | `<property name="title" .../>` | `title="..."` attribute | `<title>...</title>` |
+| Size | `Width='520' Height='320'` on the Viewbox | `size` property, `Dimension(520, 320)` | Not set (fits the content) | Not set (browser decides) |
+| Layout container | `<Grid>` with two `RowDefinition`s | `<bean id="panel" class="javax.swing.JPanel">` with `BorderLayout` | None: each label is stacked with `pack="..."` | `<body>` with `text-align:center` |
+| Background color | `Background='#172033'` on the Grid | `background` property, `#172033` | `bg="#172033"` on every element | `background:#172033` style |
+| Padding and margins | `Margin='10'`, `Margin='28,24,28,0'`, `Margin='28'` | `createEmptyBorder(24, 28, 40, 28)` on the panel | `pack="fill=x,padx=28,pady=24"` | `padding:48px` |
+| Yellow banner text | `<TextBlock Foreground='#FFCE56' FontSize='18' FontWeight='Bold' .../>` | `<bean id="banner" class="javax.swing.JLabel">`, `#FFCE56`, SansSerif bold 18 | `<Label id="banner" fg="#FFCE56" font="Helvetica 18 bold" .../>` | `<h2 style="color:#FFCE56">` |
+| Hours total text | Second `<TextBlock Grid.Row='1' FontSize='24' Foreground='White' .../>` | `<bean id="total" class="javax.swing.JLabel">`, white, bold 24 | `<Label id="total" fg="#FFFFFF" font="Helvetica 24 bold" .../>` | `<h1>` |
+| "Saved locally" text | Same TextBlock as the total, after two line breaks (`&#x0a;&#x0a;`) | Separate `<bean id="saved" class="javax.swing.JLabel">`, bold 18 | Separate `<Label id="saved" .../>`, bold 18 | Separate `<h3>` |
+| Centered text | `TextAlignment='Center'` | `horizontalAlignment` property, `0` (center) | `pack="fill=x"` (labels center by default) | `text-align:center` |
+| Placing children in the layout | Nesting inside `<Grid>`, plus `Grid.Row` | `MethodInvokingBean` calling `panel.add(label, "North" / "Center" / "South")` | `parent="window"` attribute | Nesting inside `<body>` |
+| Close button | None (the window's X) | None (the window's X) | None (the window's X) | `<button onclick="done()">Close</button>` |
+| Animation fragment, built separately and inserted | `XElement` holding `<DoubleAnimation From="1" To="0.45" Duration="0:0:1.2" AutoReverse="True" RepeatBehavior="Forever" .../>` | `xmlAnim` string holding `<bean id="anim" class="javax.swing.Timer">`, ticking every 40 ms | `xml_anim` string holding `<timer interval="40"/>` | `animCSS` string holding `@keyframes pulse { from { opacity: 1 } to { opacity: .45 } }` |
+| What starts the animation | `<EventTrigger RoutedEvent='FrameworkElement.Loaded'>` and a `<Storyboard>`, all in the markup | `init-method="start"` in the XML; Java code fades the labels on each tick | Python code reads `interval` and schedules ticks with `after()` | `animation: pulse 1.2s ease-in-out infinite alternate`, all in CSS |
+| What fades | The whole Viewbox's `Opacity` | Each label's text color, from 100% to 45% alpha | Each label's color, blended toward the background | `h1`, `h2` and `h3` opacity |
+
+The XAML and the Go CSS describe the animation completely in markup. Swing and Tk can't declare an animation in
+markup, so in Java, Kotlin and Python the markup only declares a timer, and code outside it does the fading.
+
 ## License
 
 MIT, carrying the original copyright notice. See [LICENSE](LICENSE).
