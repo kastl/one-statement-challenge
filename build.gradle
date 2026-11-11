@@ -49,6 +49,14 @@ springBoot {
     }
 }
 
+// The Python version lives in python/ and needs only the installed Python launcher (py).
+tasks.register('runPython', Exec) {
+    group = 'application'
+    description = 'Runs the Python version of the one-statement program.'
+    workingDir = file('python')
+    commandLine 'py', 'program.py'
+}
+
 // sqlite-jdbc loads a native library. The working directory fixes where data/ is created.
 tasks.withType(BootRun).configureEach {
     jvmArgs '--enable-native-access=ALL-UNNAMED'

@@ -28,12 +28,33 @@ real time-reporting system. Delete the `data` folder to start over; git ignores 
 The path is relative to the working directory, which the Gradle run tasks set to the project folder. If you run the
 JAR directly from somewhere else, `data` is created there.
 
+### Python
+
+The Python version needs no installs beyond Python 3 itself: `tkinter` and `sqlite3` are in the standard library.
+
+```
+.\gradlew.bat runPython
+py python\program.py
+```
+
+In IntelliJ, `runPython` is in the Gradle tool window under Tasks > application. It saves to
+`python/data/demo-timecards.db`, which git ignores.
+
+### Go (planned)
+
+Not started. Go needs its toolchain installed, and it has no standard-library GUI or SQLite driver. A port would
+need `modernc.org/sqlite` (pure Go) and a window approach. Go's `for` init and post accept only simple statements,
+so function literals would carry the work.
+
 ## Layout
 
 | Version | Program | Helper types |
 | --- | --- | --- |
 | Java | [Program.java](src/main/java/challenge1/javaversion/Program.java) | `DemoTimeCard.java`, `DemoTimeCardRepository.java` |
 | Kotlin | [Program.kt](src/main/kotlin/challenge1/kotlinversion/Program.kt) | `DemoTimeCard.kt`, `DemoTimeCardRepository.kt` |
+| Python | [program.py](python/program.py) | `DemoTimeCard`, `DemoTimeCardRepository` in the same file |
+
+Gradle builds only the Java and Kotlin code; `python/` is a self-contained folder beside it.
 
 Each version has its own package, Spring Boot application class, entity and repository. As in the original, the
 entity and the data-access type are the only code outside `main`.
@@ -62,6 +83,13 @@ Comment arrows mark the boundaries between the three sections in both files.
 | XML string | Text blocks joined with `+` | One raw string with `${...}` templates |
 | Summing the hours | `stream().mapToDouble(Double::doubleValue).sum()` | `sum()` |
 | Entity | Class with fields and two constructors | Class with a primary constructor |
+
+### Python
+
+Python has no three-part `for` and no comma expressions, so the loop is `for _ in iter(step, False): ...`.
+`step` is a lambda built from the initializer object; its conditional expression is the condition, a tuple of
+expressions is the update, and `...` is the empty body. The window comes from a runtime XML string parsed with
+`ElementTree`, with `getattr(tkinter, tag)` as the reflection.
 
 One behavior differs in principle. The Kotlin loop body runs once before the first condition check, where Java
 checks first. The body is empty, so the two programs do the same things in the same order.
