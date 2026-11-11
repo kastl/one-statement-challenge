@@ -57,6 +57,14 @@ tasks.register('runPython', Exec) {
     commandLine 'py', 'program.py'
 }
 
+// The Go version lives in go/ and needs the Go toolchain on PATH (the first run downloads modules).
+tasks.register('runGo', Exec) {
+    group = 'application'
+    description = 'Runs the Go version of the one-statement program.'
+    workingDir = file('go')
+    commandLine 'go', 'run', '.'
+}
+
 // sqlite-jdbc loads a native library. The working directory fixes where data/ is created.
 tasks.withType(BootRun).configureEach {
     jvmArgs '--enable-native-access=ALL-UNNAMED'

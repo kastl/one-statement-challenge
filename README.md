@@ -40,11 +40,20 @@ py python\program.py
 In IntelliJ, `runPython` is in the Gradle tool window under Tasks > application. It saves to
 `python/data/demo-timecards.db`, which git ignores.
 
-### Go (planned)
+### Go
 
-Not started. Go needs its toolchain installed, and it has no standard-library GUI or SQLite driver. A port would
-need `modernc.org/sqlite` (pure Go) and a window approach. Go's `for` init and post accept only simple statements,
-so function literals would carry the work.
+Go is the one version that needs an install: the Go toolchain (`winget install GoLang.Go`). It has no
+standard-library GUI or SQLite driver, so the first run downloads `modernc.org/sqlite`, a pure-Go driver that needs
+no C compiler.
+
+```
+.\gradlew.bat runGo
+cd go; go run .
+```
+
+The "window" is a page served on a loopback port and opened in your default browser. Press Close or close the tab
+to finish. It saves to `go/data/demo-timecards.db`, which git ignores. If a running IDE doesn't see `go` after the
+install, restart it so it picks up the new PATH.
 
 ## Layout
 
@@ -54,7 +63,9 @@ so function literals would carry the work.
 | Kotlin | [Program.kt](src/main/kotlin/challenge1/kotlinversion/Program.kt) | `DemoTimeCard.kt`, `DemoTimeCardRepository.kt` |
 | Python | [program.py](python/program.py) | `DemoTimeCard`, `DemoTimeCardRepository` in the same file |
 
-Gradle builds only the Java and Kotlin code; `python/` is a self-contained folder beside it.
+| Go | [main.go](go/main.go) | `helpers.go` (entity, repository and expression helpers) |
+
+Gradle builds only the Java and Kotlin code; `python/` and `go/` are self-contained folders beside it.
 
 Each version has its own package, Spring Boot application class, entity and repository. As in the original, the
 entity and the data-access type are the only code outside `main`.
@@ -90,6 +101,15 @@ Python has no three-part `for` and no comma expressions, so the loop is `for _ i
 `step` is a lambda built from the initializer object; its conditional expression is the condition, a tuple of
 expressions is the update, and `...` is the empty body. The window comes from a runtime XML string parsed with
 `ElementTree`, with `getattr(tkinter, tag)` as the reflection.
+
+### Go
+
+Go's `for` clause allows only simple statements, and Go has no ternary, no comma expression and no statements
+inside expressions. The loop is a real three-part `for i := &struct{...}{...}; condition; post {}`, with the same
+two semicolons as Java. The state is an anonymous struct. `a && b || After(false, ...)` stands in for the ternary,
+and `Seq(...)`, whose arguments Go evaluates left to right, stands in for the comma list. Anything that needs a
+statement (`Lock`, `Append`, `ShowDialog`) is a small value-returning function in `helpers.go`. That file is the
+price of the Go version. The reflection is `reflect`'s `MethodByName`, and the pulse is a CSS animation fragment.
 
 One behavior differs in principle. The Kotlin loop body runs once before the first condition check, where Java
 checks first. The body is empty, so the two programs do the same things in the same order.
